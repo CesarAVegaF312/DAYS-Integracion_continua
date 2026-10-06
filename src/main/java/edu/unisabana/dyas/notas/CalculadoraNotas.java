@@ -4,12 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Calcula la nota definitiva de una asignatura con tres cortes (30% - 30% - 40%).
- *
- * Reglas:
- * - Cada nota debe estar entre 0.0 y 5.0.
- * - La definitiva se redondea a una cifra decimal (mitad hacia arriba).
- * - Se aprueba con una definitiva mayor o igual a 3.0.
+ * Calcula la nota definitiva con tres cortes: 30%, 30% y 40%.
+ * Cada nota debe estar entre 0.0 y 5.0.
+ * Se aprueba con una definitiva mayor o igual a 3.0.
  */
 public class CalculadoraNotas {
 
@@ -22,23 +19,52 @@ public class CalculadoraNotas {
     private static final BigDecimal PESO_CORTE_3 = new BigDecimal("0.40");
 
     public double calcularDefinitiva(double corte1, double corte2, double corte3) {
-        BigDecimal definitiva = validar(corte1, "corte 1").multiply(PESO_CORTE_1)
+        BigDecimal definitiva = validar(corte1, "corte 1")
+                .multiply(PESO_CORTE_1)
                 .add(validar(corte2, "corte 2").multiply(PESO_CORTE_2))
                 .add(validar(corte3, "corte 3").multiply(PESO_CORTE_3));
-        // BigDecimal evita errores de punto flotante: con double, 3.05 puede quedar en 3.0499999...
+
         return definitiva.setScale(1, RoundingMode.HALF_UP).doubleValue();
     }
 
     public boolean aprueba(double definitiva) {
-        return validar(definitiva, "definitiva").compareTo(NOTA_APROBATORIA) >= 0;
+        return validar(definitiva, "definitiva")
+                .compareTo(NOTA_APROBATORIA) >= 0;
+    }
+
+    public double notaNecesariaTercerCorte(double corte1, double corte2) {
+        BigDecimal nota1 = validar(corte1, "corte 1");
+        BigDecimal nota2 = validar(corte2, "corte 2");
+
+        BigDecimal acumulado = nota1.multiply(PESO_CORTE_1)
+                .add(nota2.multiply(PESO_CORTE_2));
+
+        BigDecimal necesaria = NOTA_APROBATORIA
+                .subtract(acumulado)
+                .divide(PESO_CORTE_3, 1, RoundingMode.CEILING);
+
+        if (necesaria.compareTo(NOTA_MAXIMA) > 0) {
+            throw new IllegalStateException(
+                    "Con esas notas ya no es posible aprobar.");
+        }
+
+        if (necesaria.compareTo(NOTA_MINIMA) < 0) {
+            return 0.0;
+        }
+
+        return necesaria.doubleValue();
     }
 
     private BigDecimal validar(double nota, String nombre) {
         BigDecimal valor = BigDecimal.valueOf(nota);
-        if (valor.compareTo(NOTA_MINIMA) < 0 || valor.compareTo(NOTA_MAXIMA) > 0) {
+
+        if (valor.compareTo(NOTA_MINIMA) < 0
+                || valor.compareTo(NOTA_MAXIMA) > 0) {
             throw new IllegalArgumentException(
-                    "La nota del " + nombre + " debe estar entre 0.0 y 5.0, pero fue " + nota);
+                    "La nota del " + nombre
+                            + " debe estar entre 0.0 y 5.0, pero fue " + nota);
         }
+
         return valor;
     }
 }
