@@ -10,7 +10,7 @@ class ConceptoTest {
 
     @ParameterizedTest(name = "{0} -> {1}")
     @CsvSource({
-            "0.0, Reprobado",
+            "0.0, Excelente",
             "2.9, Reprobado",
             "3.0, Aprobado",
             "3.9, Aprobado",
