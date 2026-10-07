@@ -55,6 +55,24 @@ public class CalculadoraNotas {
         return necesaria.doubleValue();
     }
 
+    /**
+     * Concepto cualitativo según la definitiva.
+     */
+    public String concepto(double definitiva) {
+        BigDecimal nota = validar(definitiva, "definitiva");
+        String resultado;
+        if (nota.compareTo(new BigDecimal("4.5")) >= 0) {
+            resultado = "Excelente";
+        } else if (nota.compareTo(new BigDecimal("4.0")) >= 0) {
+            resultado = "Sobresaliente";
+        } else if (nota.compareTo(NOTA_APROBATORIA) >= 0) {
+            resultado = "Aprobado";
+        } else {
+            resultado = "Reprobado";
+        }
+        return resultado;
+    }
+
     private BigDecimal validar(double nota, String nombre) {
         BigDecimal valor = BigDecimal.valueOf(nota);
         if (valor.compareTo(NOTA_MINIMA) < 0 || valor.compareTo(NOTA_MAXIMA) > 0) {
